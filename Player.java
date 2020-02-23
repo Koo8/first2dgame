@@ -29,4 +29,9 @@ class Player {
 
     public void update() {
     }
+
+    public void setPosition(double x, double y) {
+        this.positionX = x;
+        this.postionY = y;
+    }
 }
