@@ -1,12 +1,8 @@
 package android.example.a2dgame_littleball_androidstudio;
 
 import android.graphics.Canvas;
-import android.os.SystemClock;
 import android.util.Log;
-import android.view.Surface;
 import android.view.SurfaceHolder;
-
-import java.util.Observer;
 
 class GameLoop extends Thread{
     private boolean isRunning = false;
@@ -14,7 +10,7 @@ class GameLoop extends Thread{
     private Game game;
     private double averageUPS;
     private double averageFPS;
-    private static final double MAX_UPS = 60;
+    static final double MAX_UPS = 60;
     private static final double UPS_PERIOD = 1E+3/MAX_UPS;
     private int counter =0;
 
@@ -50,10 +46,10 @@ class GameLoop extends Thread{
 
         // set startTime b4 the game looping;
         startTime = System.currentTimeMillis();
-        Canvas canvas = null;
+
         // Game loop
         while(isRunning) {
-
+            Canvas canvas = null;
             // ***try to update and render game
                 // we need a canvas
             try{
@@ -65,8 +61,8 @@ class GameLoop extends Thread{
                     updateCount++;
                 }
 
-            }catch (IllegalArgumentException e ) {
-                e.printStackTrace();
+            }catch (Exception e ) {
+                Log.d("***************", "run: " + e.toString());
             } finally {
                 if (canvas != null ){
                     try{
@@ -74,7 +70,7 @@ class GameLoop extends Thread{
                         // update frameCount only when the canvas is exposed to the surfaceholder;
                         frameCount++;
                     }catch (Exception e ) {
-                        e.printStackTrace();
+                        Log.d("******????", "run in finally block: " + e.toString());
                     }
                 }
 
@@ -86,7 +82,6 @@ class GameLoop extends Thread{
 
             elapsedTime = System.currentTimeMillis() - startTime;
             sleepTime = (long)(updateCount*UPS_PERIOD - elapsedTime);
-            Log.d("********", "run: UPS_Period " + UPS_PERIOD + " run: SleepTime is " + sleepTime);
             if(sleepTime > 0) {
                 try {
                     sleep(sleepTime);

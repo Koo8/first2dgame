@@ -1,16 +1,18 @@
 package android.example.a2dgame_littleball_androidstudio;
 
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * mainAcivity is the entry point to our application
  */
 
 public class MainActivity extends AppCompatActivity {
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         // set content view to game, so that objects in the Game class
         // can be rendered to the screen
-        setContentView(new Game(this));
+        setContentView(new Game(this, getTheme()));
+
     }
 }

@@ -1,14 +1,18 @@
 package android.example.a2dgame_littleball_androidstudio;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RadialGradient;
+import android.os.Build;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 
 import java.util.Random;
@@ -16,45 +20,49 @@ import java.util.Random;
 // game is responsible for all objects and updates of states and render to screen
 class Game extends SurfaceView implements SurfaceHolder.Callback {
     private final Player player;
-    private final Player player_friend;
+    private final JoyStick joyStick;
     private GameLoop gameloop;
-    private double randomX, randomY;
-    private Random rand;
+    private Resources.Theme theme;
+    private Resources resources;
 
-    public Game(Context context) {
+
+    public Game(Context context, Resources.Theme theme) {
         super(context);
         // get surfaceholder and callback
         SurfaceHolder surfaceHolder = getHolder();
         surfaceHolder.addCallback(this);
-
-
-
-
+        this.theme = theme;
         gameloop = new GameLoop(this, surfaceHolder);
 
         // initialize player
-        player = new Player(getContext(), 2 * 500, 500, 30);
-        player_friend = new Player(getContext(), 400, 300, 20);
+        this.resources = getResources();
+        joyStick = new JoyStick(275, 700, 70, 40);
+        player = new Player(theme, resources,2 * 500, 500, 30);
         setFocusable(true);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-        rand = new Random();
-        randomX = rand.nextDouble() * 100;
-        randomY = rand.nextDouble() * 180;
-
         // this is used for handling touchEvent
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                if (joyStick.isPressed(event.getX(), event.getY())) {
+                    joyStick.setIsPressed(true);
+                }
                 // cursor position
-                player.setPosition(event.getX(), event.getY());
-                player_friend.setPosition(event.getX() - randomX, event.getY() - randomY);
+//                player.setPosition(event.getX(), event.getY());
                 return true;
             case MotionEvent.ACTION_MOVE:
-                player.setPosition(event.getX(), event.getY());
-                player_friend.setPosition(event.getX() - randomX, event.getY() - randomY);
+                if(joyStick.getIsPressed()) {
+                    joyStick.setActuator(event.getX(), event.getY());
+                }
+//                player.setPosition(event.getX(), event.getY());
+                return true;
+            case MotionEvent.ACTION_UP:
+                joyStick.setIsPressed(false);
+                joyStick.resetActuator();
+                player.setPosition(400,200);
                 return true;
 
 
@@ -80,17 +88,18 @@ class Game extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void draw(Canvas canvas) {
+
         super.draw(canvas);
         drawUPS(canvas);
         drawFPS(canvas);
         player.draw(canvas);
-        player_friend.draw(canvas);
+        joyStick.draw(canvas);
     }
 
     public void drawUPS(Canvas canvas) {
         String averageUPS = Double.toString(gameloop.getAverageUPS());
         Paint paint = new Paint();
-        int color = ContextCompat.getColor(getContext(), R.color.magenta);
+        int color = resources.getColor(R.color.magenta, theme);
         paint.setColor(color);
         paint.setTextSize(50);
         canvas.drawText("UPS: " + averageUPS, 100, 50, paint);
@@ -99,14 +108,14 @@ class Game extends SurfaceView implements SurfaceHolder.Callback {
     public void drawFPS(Canvas canvas) {
         String averageFPS = Double.toString(gameloop.getAverageFPS());
         Paint paint = new Paint();
-        int color = ContextCompat.getColor(getContext(), R.color.magenta);
+        int color = resources.getColor(R.color.magenta,theme);
         paint.setColor(color);
         paint.setTextSize(50);
         canvas.drawText("FPS: " + averageFPS, 100, 200, paint);
     }
 
     public void update() {
-        player.update();
-        player_friend.update();
+        player.update(joyStick);
+        joyStick.update();
     }
 }
