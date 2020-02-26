@@ -31,8 +31,9 @@ public abstract class GameObject {
     public  double getPositionY() {
         return positionY;
     }
-
-    public static double getDistanceBetweenObjects(Enemy enemy, Player player) {
-        return Util.getDistance(enemy.getPositionX(), player.getPositionX(), enemy.getPositionY(), player.getPositionY());
+//  getDistanceBetweenObjects has to use a variable of distance, the Circle class "isColliding" method needs that output of distance.
+    public static double getDistanceBetweenObjects(GameObject obj1, GameObject obj2) {
+        double distance =Util.getDistance(obj1.getPositionX(), obj2.getPositionX(), obj1.getPositionY(), obj2.getPositionY());
+        return  distance;
     }
 }

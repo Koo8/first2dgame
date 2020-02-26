@@ -15,6 +15,7 @@ public class Enemy extends Circle {
     private static final double NUM_OF_SPAWNS_PER_SECOND = NUM_OF_SPAWNS_PER_MINUTE / 60.0; // this 60.0 has to be this way, otherwise using 60 will make this constant into 0, and therefore create "INFINITE' denomenator;
     private static final double TIME_SPAN_BETWEEN_SPAWNS = GameLoop.MAX_UPS/ NUM_OF_SPAWNS_PER_SECOND;
     private static double timeLeftBeforeSpawn = TIME_SPAN_BETWEEN_SPAWNS ;
+    private static int counter = 0;
     private Player player;
     public static final double SPEED_PIXELS_PER_SECOND = Player.SPEED_PIXELS_PER_SECOND * 0.6;
     public static final double MAX_SPEED = SPEED_PIXELS_PER_SECOND / GameLoop.MAX_UPS;
@@ -64,6 +65,7 @@ public class Enemy extends Circle {
      */
     public static boolean isReadyToSpawn() {
         if ( timeLeftBeforeSpawn <= 0) {
+            Log.d("Enemy &&&&&&& ", "isReadyToSpawn: " + counter++);
             timeLeftBeforeSpawn += TIME_SPAN_BETWEEN_SPAWNS;
             return true;
         } else {
