@@ -4,13 +4,13 @@ import android.graphics.Canvas;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
-class GameLoop extends Thread{
+public class GameLoop extends Thread{
     private boolean isRunning = false;
     private SurfaceHolder surfaceHolder;
     private Game game;
     private double averageUPS;
     private double averageFPS;
-    static final double MAX_UPS = 60;
+    public static final double MAX_UPS = 60;
     private static final double UPS_PERIOD = 1E+3/MAX_UPS;
     private int counter =0;
 
@@ -18,6 +18,7 @@ class GameLoop extends Thread{
         this.game = game;
         this.surfaceHolder = surfaceHolder;
     }
+
 
     public double getAverageUPS() {
         return averageUPS;
