@@ -4,6 +4,7 @@ import android.content.Context;
 import android.example.a2dgame_littleball_androidstudio.GameLoop;
 import android.example.a2dgame_littleball_androidstudio.JoyStick;
 import android.example.a2dgame_littleball_androidstudio.R;
+import android.example.a2dgame_littleball_androidstudio.Util;
 import android.example.a2dgame_littleball_androidstudio.object.Circle;
 import android.util.Log;
 
@@ -33,5 +34,15 @@ public class Player extends Circle {
         // update position
         positionX += velocityX;
         positionY += velocityY;
+
+        // update direction from velocity only when the player is moving,
+        if (velocityX !=0 && velocityY != 0) {
+            //***** normolize velocity to get direction ( unit vector of velocity)
+                // first: get distance between tow points
+            double distance = Util.getDistance(0,0,velocityX,velocityY);
+            directionX = velocityX /distance;
+            directionY =velocityY /distance;
+        }
+
     }
 }

@@ -10,6 +10,7 @@ public abstract class GameObject {
 
     protected double velocityX;
     protected double velocityY;
+    protected double directionX, directionY; // these direction x and y are determined by player class for spell objects to calculate its direction
 
     public GameObject(double positionX, double positionY) {
         this.positionX = positionX;
@@ -35,5 +36,12 @@ public abstract class GameObject {
     public static double getDistanceBetweenObjects(GameObject obj1, GameObject obj2) {
         double distance =Util.getDistance(obj1.getPositionX(), obj2.getPositionX(), obj1.getPositionY(), obj2.getPositionY());
         return  distance;
+    }
+
+    protected double getDirectionX() {
+        return directionX;
+    }
+    protected double getDirectionY() {
+        return directionY;
     }
 }

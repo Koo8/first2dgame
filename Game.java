@@ -2,8 +2,10 @@ package android.example.a2dgame_littleball_androidstudio;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.example.a2dgame_littleball_androidstudio.object.Circle;
 import android.example.a2dgame_littleball_androidstudio.object.Enemy;
 import android.example.a2dgame_littleball_androidstudio.object.Player;
+import android.example.a2dgame_littleball_androidstudio.object.Spell;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.Log;
@@ -12,6 +14,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 // game is responsible for all objects and updates of states and render to screen
@@ -20,10 +23,12 @@ class Game extends SurfaceView implements SurfaceHolder.Callback {
     private final JoyStick joyStick;
     private GameLoop gameloop;
     private Resources resources;
-//    private Enemy enemy;
 
     // create many enemies
     private List<Enemy> enemyList = new ArrayList<Enemy>();
+    // create many spells that can help player to battle enemies
+    private List<Spell> spellList = new ArrayList<Spell>();
+    // counter is used for testing and debugging
     private int counter = 0;
 
     public Game(Context context) {
@@ -36,7 +41,7 @@ class Game extends SurfaceView implements SurfaceHolder.Callback {
         // initialize player
         this.resources = getResources();
         joyStick = new JoyStick(275, 700, 70, 40);
-        player = new Player(getContext(),200, 500,30, joyStick);
+        player = new Player(getContext(), 200, 500, 30, joyStick);
 //        enemy = new Enemy(getContext(),300,100,15,player);
         setFocusable(true);
     }
@@ -47,22 +52,28 @@ class Game extends SurfaceView implements SurfaceHolder.Callback {
         // this is used for handling touchEvent
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                if (joyStick.isPressed(event.getX(), event.getY())) {
+                // ******there are three scenarios for ACTION_DOWN
+                   // first: joystick was pressed before this event,
+                if (joyStick.getIsPressed()) { // this means there is a second press down event on screen. This is the trigger for player to cast a spell
+                    spellList.add(new Spell(getContext(), player));
+
+                    // second: joystick is pressed down by this event, setISPressed(true), refrain from casting spell
+                } else if (joyStick.isPressed(event.getX(), event.getY())){
                     joyStick.setIsPressed(true);
+                    // third: joystick was not and is not pressed when the press down action happened, that indicates other part of screen was touched, this will cast a spell
+                } else {
+                    spellList.add(new Spell(getContext(), player));
                 }
-                // cursor position
-//                player.setPosition(event.getX(), event.getY());
                 return true;
             case MotionEvent.ACTION_MOVE:
-                if(joyStick.getIsPressed()) {
+                // this doesn't include a scenario that the joystick was pressed down while another finger move around on screen, this action will create unwanted acturator,  will deal with this later on.
+                if (joyStick.getIsPressed()) {
                     joyStick.setActuator(event.getX(), event.getY());
                 }
-//                player.setPosition(event.getX(), event.getY());
                 return true;
             case MotionEvent.ACTION_UP:
                 joyStick.setIsPressed(false);
                 joyStick.resetActuator();
-                player.setPosition(400,200);
                 return true;
 
 
@@ -94,8 +105,12 @@ class Game extends SurfaceView implements SurfaceHolder.Callback {
         drawFPS(canvas);
         player.draw(canvas);
         joyStick.draw(canvas);
-        for (Enemy enemy : enemyList ){
+        for (Enemy enemy : enemyList) {
             enemy.draw(canvas);
+        }
+        for (Spell spell: spellList) {
+            spell.draw(canvas);
+            Log.d("***********", "draw spell " + counter++);
         }
     }
 
@@ -123,12 +138,26 @@ class Game extends SurfaceView implements SurfaceHolder.Callback {
         player.update();
         joyStick.update();
         // add enemy when it is ready to spawn
-       if (Enemy.isReadyToSpawn()) {
-           enemyList.add(new Enemy(getContext(), player));
-       }
-       // update each enemy
-       for (Enemy enemy: enemyList) {
-           enemy.update();
-       }
+        if (Enemy.isReadyToSpawn()) {
+            enemyList.add(new Enemy(getContext(), player));
+        }
+        // update each enemy
+        for (Enemy enemy : enemyList) {
+            enemy.update();
+        }
+
+        // update each spell
+        for (Spell spell : spellList) {
+            spell.update();
+        }
+
+        // remove enemy object that collide with player
+        // use Itarator class to loop through the enemyList and check the distance between each enemy and the player
+        Iterator<Enemy> enemyIterator = enemyList.iterator();
+        while (enemyIterator.hasNext()) {
+            if (Circle.iscolliding(enemyIterator.next(), player)) {
+                enemyIterator.remove();
+            }
+        }
     }
 }
